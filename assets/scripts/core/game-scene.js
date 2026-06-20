@@ -1312,7 +1312,7 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
       let inputFocused   = false;
       let cursorVisible  = false;
       let cursorTimer    = null;
-      const placeholderLabel = this.add.bitmapText(inputCX - 5, inputCY, "bigFont", "Enter a level, user or id", 28)
+      const placeholderLabel = this.add.bitmapText(inputCX - 5, inputCY, "bigFont", "Enter a level ID here to play", 28)
         .setScrollFactor(0).setDepth(106).setOrigin(0.5, 0.5)
         .setTint(0x6c99d8).setAlpha(0.85);
       const typedLabel = this.add.bitmapText(innerPanelX + 10, inputCY, "bigFont", "", 46)
