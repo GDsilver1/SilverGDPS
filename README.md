@@ -1,3 +1,10 @@
+ <img 
+  width="400" 
+  height="400" 
+  alt="slvrgdps logo" 
+  src="https://github.com/user-attachments/assets/1b647556-ef74-47f9-be61-46696c57f04e" 
+  />
+
 A Breadmod custom GDPS that will hopefully add new ideas in the future!
 **FULL CREDIT TO BREADMOD TEAM, ROBTOP, AND MY BEAUTIFUL TEAM OF DEVS THAT COME TOGETHER AND INCLUDE EVERYONES IDEAS!!!**
 
