@@ -387,6 +387,9 @@ class GameScene extends Phaser.Scene {
     this._totalJumps = parseInt(localStorage.getItem("gd_totalJumps") || "0", 10);
     this._totalDeaths = parseInt(localStorage.getItem("gd_totalDeaths") || "0", 10);
     window._completedLevels = parseInt(localStorage.getItem("gd_completedLevels") || "0", 10);
+    window._totalStars = parseInt(localStorage.getItem("gd_totalStars") || "0", 10);
+    this._coinsCollected = 0;
+    this._coinTotal = 0;
     this._playTime = 0;
     this._menuActive = true;
     this._slideIn = false;
@@ -406,15 +409,15 @@ class GameScene extends Phaser.Scene {
       {frame:  "",                       url: "",                                                     angle: 0,                row: 0, col: 2 },
       {frame:  "",                       url: "",                                                     angle: 0,                row: 0, col: 3 },
 
-      { frame: "gj_twIcon_001.png",      url: "https://x.com/",                          angle: -90, flipX: true, row: 1, col: 0 },
-      { frame: "gj_ytIcon_001.png",      url: "https://www.youtube.com/@GDSilverwastaken",               angle: 0,                row: 1, col: 1 },
-      { frame: "gj_tiktokIcon_001.png",  url: "https://www.tiktok.com/@gdsilv3r",                 angle: -90, flipX: true, row: 1, col: 2 },
-      { frame: "gj_githubIcon_001.png",  url: "https://github.com/GDsilver1/SilverGDPS/", angle: 0,                row: 1, col: 3 },
+      { frame: "gj_twIcon_001.png",      url: "https://x.com/rohanis0000gd",                          angle: -90, flipX: true, row: 1, col: 0 },
+      { frame: "gj_ytIcon_001.png",      url: "https://www.youtube.com/@rohanis0000gd",               angle: 0,                row: 1, col: 1 },
+      { frame: "gj_tiktokIcon_001.png",  url: "https://www.tiktok.com/@rohanis00000",                 angle: -90, flipX: true, row: 1, col: 2 },
+      { frame: "gj_githubIcon_001.png",  url: "https://github.com/web-dashers/web-dashers.github.io", angle: 0,                row: 1, col: 3 },
 
       {frame:  "",                       url: "",                                                     angle: 0,                row: 2, col: 0 },
       {frame:  "",                       url: "",                                                     angle: 0,                row: 2, col: 1 },
       {frame:  "",                       url: "",                                                     angle: 0,                row: 2, col: 2 },
-      { frame: "gj_discordIcon_001.png", url: "https://discord.gg/jt9bB59BPu",                        angle: 90,               row: 2, col: 3 },
+      { frame: "gj_discordIcon_001.png", url: "https://discord.gg/TfEzAVWPSJ",                        angle: 90,               row: 2, col: 3 },
 
 
       //{ frame: "gj_instaIcon_001.png",   url: "https://www.instagram.com/",                           angle: -90, flipX: true, row: 1, col: 3 },
@@ -621,7 +624,9 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
           .setScrollFactor(0).setDepth(104).setScale(btnScale);
         const isSearchButton  = frame === "GJ_searchBtn_001.png";
         const isFeaturedButton = frame === "GJ_featuredBtn_001.png";
-        const isEditorButton = frame === "GJ_createBtn_001.png"; 
+        const isEditorButton = frame === "GJ_createBtn_001.png";
+        const isSavedButton = frame === "GJ_savedBtn_001.png";
+        const isScoresButton = frame === "GJ_highscoreBtn_001.png";
         if (isSearchButton) {
           btn.setInteractive();
           this._makeBouncyButton(btn, btnScale, () => {
@@ -640,12 +645,29 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
             this._closeCreatorMenu(true);
             this._openEditorMenu();
           }, () => true);
+        } else if (isSavedButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeCreatorMenu(true);
+            this._openSavedMenu();
+          }, () => true);
+        } else if (isScoresButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            window.open("https://webdemonlist.org/leaderboard", "_blank");
+          }, () => true);
+        } else if (frame === "GJ_challengeBtn_001.png") {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._buildQuestPopup();
+          }, () => true);
         } else {
           btn.setTint(0x666666);
         }
         this._creatorOverlayObjects.push(btn);
       });
     };
+    this._savedOverlay = null;
     this._searchOverlay = null;
     this._searchOverlayObjects = [];
     this._openEditorMenu = () => {
@@ -1179,8 +1201,18 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
             ["Local", "SongAuthor"]
         ];
         if (level.songId < 0){
-          window.currentlevel[0] = window.allLevels[Math.abs(level.songId) - 1][0];
-          window.currentlevel[3] = ["Local", window.allLevels[Math.abs(level.songId) - 1][3]]
+          const mainLevel = window.allLevels[Math.abs(level.songId) - 1];
+          window.currentlevel[0] = mainLevel[0];
+          window.currentlevel[3] = ["Local", mainLevel[3]];
+          const songKey = mainLevel[0];
+          if (!this.cache.audio.exists(songKey)) {
+            const songFileName = mainLevel[1].replaceAll(" ", "");
+            await new Promise((resolve) => {
+              this.load.audio(songKey, "assets/music/" + songFileName + ".mp3");
+              this.load.once("complete", resolve);
+              this.load.start();
+            });
+          }
         } else {
           const songId = level.songId;
           const songKey = `ng_song_${songId}`;
@@ -1232,6 +1264,258 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
         }
         this._editorOverlay = null;
         this._editorObjects = null;
+    };
+    this._savedCurrentFolder = null;
+    this._openSavedMenu = (folder = null) => {
+      if (this._savedOverlay) return;
+      this._savedCurrentFolder = folder;
+      const sw = screenWidth;
+      const sh = screenHeight;
+      const centerX = sw / 2;
+
+      const fadeIn = this.add.graphics().setScrollFactor(0).setDepth(200);
+      fadeIn.fillStyle(0x000000, 1);
+      fadeIn.fillRect(0, 0, sw, sh);
+      this.tweens.add({ targets: fadeIn, alpha: 0, duration: 300, ease: "Linear", onComplete: () => fadeIn.destroy() });
+
+      const overlay = this.add.graphics().setScrollFactor(0).setDepth(100);
+      const gradientSteps = 80;
+      for (let gi = 0; gi < gradientSteps; gi++) {
+        const t = gi / (gradientSteps - 1);
+        const r1 = Math.round(0x00 + (0x01 - 0x00) * t);
+        const g1 = Math.round(0x65 + (0x2c - 0x65) * t);
+        const b1 = Math.round(0xff + (0x71 - 0xff) * t);
+        const bandColor = (r1 << 16) | (g1 << 8) | b1;
+        overlay.fillStyle(bandColor, 1);
+        overlay.fillRect(0, Math.floor(gi * sh / gradientSteps), sw, Math.ceil(sh / gradientSteps) + 1);
+      }
+      this._savedOverlay = overlay;
+
+      const blocker = this.add.zone(centerX, sh / 2, sw, sh).setScrollFactor(0).setDepth(101).setInteractive();
+      const container = this.add.container(0, 0).setScrollFactor(0).setDepth(102);
+
+      const tableW = 712;
+      const tableH = 460;
+      const tableX = (sw - tableW) / 2;
+      const tableY = 85;
+
+      const allLevels = JSON.parse(localStorage.getItem("saved_levels") || "[]");
+      const folders = JSON.parse(localStorage.getItem("saved_folders") || "[]");
+      const lengthValues = ["Tiny", "Short", "Medium", "Long", "XL"];
+
+      const listContainer = this.add.container(0, 0);
+      const maskShape = this.add.graphics().fillStyle(0xffffff).fillRect(tableX, tableY, tableW, tableH).setVisible(false);
+      const mask = maskShape.createGeometryMask();
+      listContainer.setMask(mask);
+      container.add(this.add.graphics().setScrollFactor(0).setDepth(90).fillStyle(0xc2723e, 1).fillRect(tableX, tableY, tableW, tableH));
+      container.add(listContainer);
+
+      const spacing = 100;
+      let rowIndex = 0;
+
+      if (!folder) {
+        folders.forEach((folderName) => {
+          const slotY = (rowIndex * spacing) + (spacing / 2);
+          const stripeColor = rowIndex % 2 !== 0 ? 0xc2723e : 0xa1582c;
+          const levelCount = allLevels.filter(l => l.folder === folderName).length;
+
+          const bgStripe = this.add.rectangle(centerX, slotY, tableW - 10, spacing, stripeColor, 1);
+          const separator = this.add.rectangle(centerX, slotY + (spacing / 2), tableW - 10, 1, 0x502c16, 1);
+          const folderIcon = this.add.bitmapText(tableX + 20, slotY - 5, "bigFont", ">", 36).setOrigin(0, 0.5).setTint(0xffcc00);
+          const nameTxt = this.add.bitmapText(tableX + 45, slotY - 5, "bigFont", folderName, 36).setOrigin(0, 0.5).setTint(0xffcc00);
+          const countTxt = this.add.bitmapText(tableX + 45, slotY + 28, "bigFont", levelCount + " level" + (levelCount !== 1 ? "s" : ""), 18).setOrigin(0, 0.5).setAlpha(0.7);
+
+          const openBtn = this.add.nineslice(tableX + tableW - 80, slotY - 5, "GJ_button01", null, 120, 60, 24, 24, 24, 24).setScale(0.75).setInteractive();
+          const openTxt = this.add.bitmapText(openBtn.x - 2, openBtn.y - 1, "bigFont", "Open", 32).setOrigin(0.5).setScale(0.8);
+          this._makeBouncyButton(openBtn, 0.75, () => {
+            this._closeSavedMenu(true);
+            this._openSavedMenu(folderName);
+          });
+
+          const delFolderBtn = this.add.nineslice(tableX + tableW - 80, slotY + 32, "GJ_button01", null, 80, 40, 24, 24, 24, 24).setScale(0.55).setInteractive().setTint(0xff4444);
+          const delFolderTxt = this.add.bitmapText(delFolderBtn.x - 2, delFolderBtn.y - 1, "bigFont", "Del", 24).setOrigin(0.5).setScale(0.7);
+          this._makeBouncyButton(delFolderBtn, 0.55, () => {
+            const curFolders = JSON.parse(localStorage.getItem("saved_folders") || "[]");
+            localStorage.setItem("saved_folders", JSON.stringify(curFolders.filter(f => f !== folderName)));
+            const levels = JSON.parse(localStorage.getItem("saved_levels") || "[]");
+            levels.forEach(l => { if (l.folder === folderName) l.folder = null; });
+            localStorage.setItem("saved_levels", JSON.stringify(levels));
+            this._closeSavedMenu(true);
+            this._openSavedMenu();
+          });
+
+          listContainer.add([bgStripe, separator, folderIcon, nameTxt, countTxt, openBtn, openTxt, delFolderBtn, delFolderTxt]);
+          rowIndex++;
+        });
+      }
+
+      const visibleLevels = folder
+        ? allLevels.filter(l => l.folder === folder)
+        : allLevels.filter(l => !l.folder);
+
+      visibleLevels.forEach((level) => {
+        const slotY = (rowIndex * spacing) + (spacing / 2);
+        const stripeColor = rowIndex % 2 !== 0 ? 0xc2723e : 0xa1582c;
+
+        const bgStripe = this.add.rectangle(centerX, slotY, tableW - 10, spacing, stripeColor, 1);
+        const separator = this.add.rectangle(centerX, slotY + (spacing / 2), tableW - 10, 1, 0x502c16, 1);
+        const nameTxt = this.add.bitmapText(tableX + 20, slotY - 22, "bigFont", level.levelName || "Unknown", 32).setOrigin(0, 0.5);
+        const infoY = slotY + 18;
+        const authorTxt = this.add.bitmapText(tableX + 20, infoY, "bigFont", "By " + (level.author || "Unknown"), 18).setOrigin(0, 0.5);
+        const lenIcon = this.add.image(tableX + 250, infoY, "GJ_GameSheet03", "GJ_timeIcon_001.png").setScale(0.65);
+        const lenTxt = this.add.bitmapText(lenIcon.x + 22, infoY, "bigFont", lengthValues[level.levelLength] || "NA", 18).setOrigin(0, 0.5);
+
+        const playBtn = this.add.nineslice(tableX + tableW - 80, slotY - 15, "GJ_button01", null, 120, 60, 24, 24, 24, 24).setScale(0.65).setInteractive();
+        const playTxt = this.add.bitmapText(playBtn.x - 2, playBtn.y - 1, "bigFont", "Play", 28).setOrigin(0.5).setScale(0.8);
+        this._makeBouncyButton(playBtn, 0.65, () => {
+          this._closeSavedMenu(false);
+          this._startCreatedLevel(level, false);
+        });
+
+        const moveBtn = this.add.nineslice(tableX + tableW - 135, slotY + 25, "GJ_button01", null, 80, 40, 24, 24, 24, 24).setScale(0.55).setInteractive().setTint(0x4488ff);
+        const moveTxt = this.add.bitmapText(moveBtn.x - 2, moveBtn.y - 1, "bigFont", "Move", 24).setOrigin(0.5).setScale(0.7);
+        this._makeBouncyButton(moveBtn, 0.55, () => {
+          this._showFolderPicker(level.savedId, folder);
+        });
+
+        const deleteBtn = this.add.nineslice(tableX + tableW - 55, slotY + 25, "GJ_button01", null, 80, 40, 24, 24, 24, 24).setScale(0.55).setInteractive().setTint(0xff4444);
+        const deleteTxt = this.add.bitmapText(deleteBtn.x - 2, deleteBtn.y - 1, "bigFont", "Del", 24).setOrigin(0.5).setScale(0.7);
+        this._makeBouncyButton(deleteBtn, 0.55, () => {
+          const levels = JSON.parse(localStorage.getItem("saved_levels") || "[]");
+          localStorage.setItem("saved_levels", JSON.stringify(levels.filter(l => l.savedId !== level.savedId)));
+          this._closeSavedMenu(true);
+          this._openSavedMenu(folder);
+        });
+
+        listContainer.add([bgStripe, separator, nameTxt, authorTxt, lenIcon, lenTxt, playBtn, playTxt, moveBtn, moveTxt, deleteBtn, deleteTxt]);
+        rowIndex++;
+      });
+
+      if (rowIndex === 0) {
+        container.add(this.add.bitmapText(centerX, tableY + (tableH / 2), "bigFont", folder ? "Empty Folder" : "No Saved Levels", 30).setOrigin(0.5).setAlpha(0.5));
+      }
+
+      const sideFrame = this.textures.getFrame("GJ_WebSheet", "GJ_table_side_001.png");
+      const sideScaleY = tableH / sideFrame.height;
+      container.add(this.add.image(tableX - 40, tableY, "GJ_WebSheet", "GJ_table_side_001.png").setOrigin(0, 0).setScale(1, sideScaleY));
+      container.add(this.add.image(tableX + tableW + 40, tableY, "GJ_WebSheet", "GJ_table_side_001.png").setOrigin(1, 0).setFlipX(true).setScale(1, sideScaleY));
+      container.add(this.add.image(centerX, tableY - 10, "GJ_WebSheet", "GJ_table_top_001.png"));
+      container.add(this.add.image(centerX, tableY + tableH + 20, "GJ_WebSheet", "GJ_table_bottom_001.png"));
+      container.add(this.add.bitmapText(centerX, tableY - 15, "bigFont", folder ? folder : "Saved Levels", 42).setOrigin(0.5).setScale(1.1));
+
+      const newFolderBtn = this.add.image(sw - 60, sh - 55, "GJ_GameSheet03", "GJ_newBtn_001.png")
+        .setScale(0.9).setScrollFactor(0).setDepth(104).setInteractive();
+      this._makeBouncyButton(newFolderBtn, 0.9, () => {
+        const name = prompt("Folder name:");
+        if (!name || !name.trim()) return;
+        const curFolders = JSON.parse(localStorage.getItem("saved_folders") || "[]");
+        if (curFolders.includes(name.trim())) return;
+        curFolders.push(name.trim());
+        localStorage.setItem("saved_folders", JSON.stringify(curFolders));
+        this._closeSavedMenu(true);
+        this._openSavedMenu(folder);
+      });
+
+      let startY = tableY;
+      const listHeight = rowIndex * spacing;
+      const minY = tableY - Math.max(0, listHeight - tableH) - 10;
+      const maxY = tableY + 22;
+
+      listContainer.y = maxY;
+      this._savedScrollTargetY = maxY;
+      const onWheel = (pointer, gameObjects, deltaX, deltaY) => {
+        if (!this._savedOverlay) return;
+        this._savedScrollTargetY -= deltaY;
+        this._savedScrollTargetY = Phaser.Math.Clamp(this._savedScrollTargetY, minY, maxY);
+        this.tweens.add({
+          targets: listContainer,
+          y: this._savedScrollTargetY,
+          duration: 250,
+          ease: 'Power2',
+          overwrite: true
+        });
+      };
+      this.input.on('wheel', onWheel);
+
+      blocker.on('pointerdown', (pointer) => { startY = pointer.y - listContainer.y; });
+      blocker.on('pointermove', (pointer) => {
+        if (pointer.isDown) {
+          listContainer.y = Phaser.Math.Clamp(pointer.y - startY, minY, maxY);
+        }
+      });
+
+      const backBtn = this.add.image(50, 48, "GJ_GameSheet03", "GJ_arrow_03_001.png")
+        .setScrollFactor(0).setDepth(104).setFlipX(true).setFlipY(true).setRotation(Math.PI).setInteractive();
+      this._makeBouncyButton(backBtn, 1, () => {
+        if (folder) {
+          this._closeSavedMenu(true);
+          this._openSavedMenu();
+        } else {
+          this._closeSavedMenu();
+          this._openCreatorMenu();
+        }
+      });
+
+      this._savedObjects = [overlay, blocker, container, backBtn, maskShape, newFolderBtn, { destroy: () => this.input.off('wheel', onWheel) }];
+    };
+    this._showFolderPicker = (levelSavedId, currentFolder) => {
+      const sw = screenWidth;
+      const sh = screenHeight;
+      const folders = JSON.parse(localStorage.getItem("saved_folders") || "[]");
+      const options = [{ label: "No Folder", value: null }, ...folders.map(f => ({ label: f, value: f }))];
+      const popupW = 300;
+      const popupH = Math.min(50 + options.length * 45, 400);
+      const popupX = sw / 2 - popupW / 2;
+      const popupY = sh / 2 - popupH / 2;
+      const popupObjects = [];
+
+      const dimmer = this.add.graphics().setScrollFactor(0).setDepth(150);
+      dimmer.fillStyle(0x000000, 0.6);
+      dimmer.fillRect(0, 0, sw, sh);
+      const dimBlocker = this.add.zone(sw / 2, sh / 2, sw, sh).setScrollFactor(0).setDepth(151).setInteractive();
+      popupObjects.push(dimmer, dimBlocker);
+
+      const bg = this.add.graphics().setScrollFactor(0).setDepth(152);
+      bg.fillStyle(0x002e75, 0.95);
+      bg.fillRoundedRect(popupX, popupY, popupW, popupH, 12);
+      popupObjects.push(bg);
+
+      const title = this.add.bitmapText(sw / 2, popupY + 20, "bigFont", "Move to Folder", 24).setScrollFactor(0).setDepth(153).setOrigin(0.5);
+      popupObjects.push(title);
+
+      const cleanup = () => { popupObjects.forEach(o => { if (o && o.destroy) o.destroy(); }); };
+
+      options.forEach((opt, i) => {
+        const btnY = popupY + 55 + i * 45;
+        const isActive = opt.value === currentFolder;
+        const btn = this.add.nineslice(sw / 2, btnY, "GJ_button01", null, 240, 38, 24, 24, 24, 24)
+          .setScrollFactor(0).setDepth(153).setInteractive();
+        if (isActive) btn.setTint(0x44aa44);
+        const lbl = this.add.bitmapText(sw / 2, btnY - 1, "bigFont", opt.label, 22)
+          .setScrollFactor(0).setDepth(154).setOrigin(0.5);
+        this._makeBouncyButton(btn, 1, () => {
+          const levels = JSON.parse(localStorage.getItem("saved_levels") || "[]");
+          const lvl = levels.find(l => l.savedId === levelSavedId);
+          if (lvl) {
+            lvl.folder = opt.value;
+            localStorage.setItem("saved_levels", JSON.stringify(levels));
+          }
+          cleanup();
+          this._closeSavedMenu(true);
+          this._openSavedMenu(this._savedCurrentFolder);
+        });
+        popupObjects.push(btn, lbl);
+      });
+
+      dimBlocker.on("pointerup", () => cleanup());
+    };
+    this._closeSavedMenu = (silent = false) => {
+      if (!this._savedOverlay) return;
+      if (this._savedObjects) {
+        this._savedObjects.forEach(obj => { if (obj && obj.destroy) obj.destroy(); });
+      }
+      this._savedOverlay = null;
+      this._savedObjects = null;
     };
     this._openSearchMenu = () => {
       if (this._searchOverlay) return;
@@ -1312,7 +1596,7 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
       let inputFocused   = false;
       let cursorVisible  = false;
       let cursorTimer    = null;
-      const placeholderLabel = this.add.bitmapText(inputCX - 5, inputCY, "bigFont", "Enter a level ID here to play", 28)
+      const placeholderLabel = this.add.bitmapText(inputCX - 5, inputCY, "bigFont", "Enter a level, user or id", 28)
         .setScrollFactor(0).setDepth(106).setOrigin(0.5, 0.5)
         .setTint(0x6c99d8).setAlpha(0.85);
       const typedLabel = this.add.bitmapText(innerPanelX + 10, inputCY, "bigFont", "", 46)
@@ -1483,8 +1767,14 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
         for (let i = 0; i + 1 < lvlParts.length; i += 2) {
           lvlMap[lvlParts[i]] = lvlParts[i + 1];
         }
+        let _levelAuthor = "Unknown";
+        if (responseSegments[3]) {
+          const userParts = responseSegments[3].split(":");
+          if (userParts.length >= 2) _levelAuthor = userParts[1];
+        }
 
         const levelData = {
+          author:         _levelAuthor,
           // Core Level Info
           id:             lvlMap["1"] || levelId,
           title:          (lvlMap["2"] || "Online Level").trim(),
@@ -1703,6 +1993,30 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
         window._onlineLevelString = levelData.string;
         window._onlineLevelName   = levelData.title;
         window._onlineLevelId     = "online_" + levelData.id;
+
+        try {
+          const savedLevels = JSON.parse(localStorage.getItem("saved_levels") || "[]");
+          const filtered = savedLevels.filter(l => l.savedId !== "online_" + levelData.id);
+          filtered.unshift({
+            savedId: "online_" + levelData.id,
+            createdId: "online_" + levelData.id,
+            levelName: levelData.title,
+            author: levelData.author || "Unknown",
+            levelString: levelData.string,
+            levelLength: levelData.length,
+            songId: levelData.isCustomSong ? parseInt(levelData.customSongID) : -(parseInt(levelData.officialSong) + 1),
+            song: window._onlineSongTitle || "Unknown",
+            description: levelData.description || "",
+            version: levelData.version || 1,
+            status: "Online",
+            stars: levelData.stars || 0,
+            downloads: levelData.downloads || 0,
+            likes: levelData.likes || 0
+          });
+          if (filtered.length > 50) filtered.length = 50;
+          localStorage.setItem("saved_levels", JSON.stringify(filtered));
+        } catch (e) {}
+
         this.game.registry.set("autoStartGame", true);
         window.currentlevel = [
           songKey,
@@ -1918,6 +2232,12 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
         .setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(105);
 
       this._iconOverlayObjects = [overlay, blocker, titleTxt];
+
+      const starText = this.add.bitmapText(sw - 20, 60, "bigFont", String(window._totalStars || 0), 28)
+        .setScrollFactor(0).setDepth(105).setOrigin(1, 0.5);
+      const starIcon = this.add.image(starText.x - starText.width - 18, 60, "GJ_WebSheet", "GJ_bigStar_001.png")
+        .setScrollFactor(0).setDepth(105).setScale(0.4);
+      this._iconOverlayObjects.push(starIcon, starText);
 
       const backBtn = this.add.image(50, 48, "GJ_GameSheet03", "GJ_arrow_03_001.png")
         .setScrollFactor(0).setDepth(104).setFlipY(true)
@@ -2589,8 +2909,28 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
         this._closeOnlineLevelsScene();
         return;
       }
+      if (this._savedOverlay) {
+        if (this._savedCurrentFolder) {
+          this._closeSavedMenu(true);
+          this._openSavedMenu();
+        } else {
+          this._closeSavedMenu();
+          this._openCreatorMenu();
+        }
+        return;
+      }
+      if (this._editorOverlay) {
+        this._closeEditorMenu();
+        this._openCreatorMenu();
+        return;
+      }
       if (this._creatorOverlay) {
         this._closeCreatorMenu();
+        return;
+      }
+      if (this._questPopup) {
+        this._questPopup.destroy();
+        this._questPopup = null;
         return;
       }
       if (this._settingsPopup) {
@@ -3008,7 +3348,7 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
             const lvl = window.currentlevel; 
             const songID = lvl[0];
             const levelFileName = lvl[2];
-            const songFileName = lvl[4] ? lvl[4] : lvl[1].replaceAll(" ", "");
+            const songFileName = (typeof lvl[4] === "string") ? lvl[4] : lvl[1].replaceAll(" ", "");
             
             const loadingText = this.add.bitmapText(cx, cy, "goldFont", "Downloading Level Assets...", 20).setOrigin(0.5).setDepth(200);
             
@@ -3122,6 +3462,41 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
       nameLabel.setPosition(groupStartX + scaledIconW + scaledGap - cardX, 0);
       cardContentObjs.push(nameLabel);
       cardBounceContainer.add(nameLabel);
+      const levelStars = lvl[4] || 0;
+      if (levelStars > 0) {
+        const starIconScale = 0.35;
+        const starIcon = this.add.image(cardW / 2 - 30, -cardH / 2 + 28, "GJ_WebSheet", "GJ_bigStar_001.png")
+          .setScrollFactor(0).setDepth(155).setScale(starIconScale);
+        const starText = this.add.bitmapText(cardW / 2 - 48, -cardH / 2 + 28, "bigFont", String(levelStars), 28)
+          .setScrollFactor(0).setDepth(155).setOrigin(1, 0.5);
+        const completedSet = JSON.parse(localStorage.getItem("gd_completedSet") || "[]");
+        if (completedSet.includes(levelId)) {
+          starIcon.setTint(0xffff00);
+          starText.setTint(0xffff00);
+        } else {
+          starIcon.setTint(0xaaaaaa);
+          starText.setTint(0xaaaaaa);
+        }
+        cardContentObjs.push(starIcon, starText);
+        cardBounceContainer.add([starIcon, starText]);
+      }
+      const levelCoinCount = lvl[5] || 0;
+      if (levelCoinCount > 0) {
+        let savedCoins;
+        try { savedCoins = JSON.parse(localStorage.getItem("coins_" + levelId) || "[]"); } catch(e) { savedCoins = []; }
+        const coinSpacing = 36;
+        const coinsGroupW = (levelCoinCount - 1) * coinSpacing;
+        const coinBaseX = cardW / 2 - 50 - coinsGroupW / 2;
+        const coinY = cardH / 2 - 30;
+        for (let i = 0; i < levelCoinCount; i++) {
+          const collected = savedCoins.includes(i);
+          const coinFrame = collected ? "GJ_coinsIcon_001.png" : "GJ_coinsIcon_gray_001.png";
+          const coinIcon = this.add.image(coinBaseX + i * coinSpacing, coinY, "GJ_GameSheet03", coinFrame)
+            .setScrollFactor(0).setDepth(155).setScale(0.9);
+          cardContentObjs.push(coinIcon);
+          cardBounceContainer.add(coinIcon);
+        }
+      }
     };
     const barAreaY = cardY + cardH / 2 + 100;
     const barW2 = Math.min(600, sw - 200);
@@ -3811,9 +4186,14 @@ _buildSettingsPopup() {
             (v) => window.macroBot = v
         );
 
-        createNumberInput(container, column2X, startY, "Speedhack", 
-            () => window.speedHack, 
+        createNumberInput(container, column2X, startY, "Speedhack",
+            () => window.speedHack,
             (v) => window.speedHack = v
+        );
+
+        createNumberInput(container, column2X, startY + spacingY, "Respawn Time",
+            () => window.respawnTime,
+            (v) => window.respawnTime = v
         );
     };
 
@@ -3857,14 +4237,20 @@ _buildSettingsPopup() {
             (v) => window.showCPS = v
         );
 
-        createToggle(container, column2X, startY, "Create Object ID labels", 
-            () => window.createObjectIds, 
+        createToggle(container, column2X, startY, "Object Glow",
+            () => window.showObjectGlow,
+            (v) => window.showObjectGlow = v,
+            (v) => { this._level._updateGlowVisibility(); }
+        );
+
+        createToggle(container, column2X, startY + (spacingY), "Create Object ID labels",
+            () => window.createObjectIds,
             (v) => window.createObjectIds = v,
             null, 17
         );
 
-        createToggle(container, column2X, startY + (spacingY), "Show Object ID labels", 
-            () => window.showObjectIds, 
+        createToggle(container, column2X, startY + (spacingY * 2), "Show Object ID labels",
+            () => window.showObjectIds,
             (v) => window.showObjectIds = v,
             null, 17
         );
@@ -3917,7 +4303,9 @@ _buildSettingsPopup() {
         showCPS: window.showCPS,
         speedHack: window.speedHack,
         macroBot: window.macroBot,
-        showEditorGlow: window.showEditorGlow
+        showEditorGlow: window.showEditorGlow,
+        showObjectGlow: window.showObjectGlow,
+        respawnTime: window.respawnTime
     };
     localStorage.setItem("gd_settings", JSON.stringify(settings));
   }
@@ -3940,7 +4328,9 @@ _buildSettingsPopup() {
         showCPS: false,
         speedHack: 1.0,
         macroBot: false,
-        showEditorGlow: false
+        showEditorGlow: false,
+        showObjectGlow: true,
+        respawnTime: 1.0
     };
 
     const data = saved ? JSON.parse(saved) : defaults;
@@ -3959,8 +4349,172 @@ _buildSettingsPopup() {
     window.speedHack = data.speedHack;
     window.macroBot = data.macroBot;
     window.showEditorGlow = data.showEditorGlow;
+    window.showObjectGlow = data.showObjectGlow ?? true;
+    window.respawnTime = data.respawnTime ?? 1.0;
     window.createObjectIds = data.createObjectIds;
     window.showObjectIds = data.showObjectIds;
+  }
+  _getActiveQuests() {
+    const QUEST_DURATION = 4 * 60 * 60 * 1000;
+    const QUEST_POOL = [
+      { name: "Star Collector", desc: "Collect {n} Stars.", stat: "stars", targets: [5, 10, 15, 20], rewards: [10, 15, 20, 25] },
+      { name: "Level Master", desc: "Complete {n} Levels.", stat: "completedLevels", targets: [1, 2, 3, 5], rewards: [10, 15, 20, 30] },
+      { name: "Jump King", desc: "Jump {n} Times.", stat: "jumps", targets: [100, 200, 500, 1000], rewards: [5, 10, 15, 20] },
+      { name: "Never Give Up", desc: "Die {n} Times.", stat: "deaths", targets: [10, 25, 50, 100], rewards: [5, 10, 15, 20] },
+      { name: "Try Again", desc: "Make {n} Attempts.", stat: "attempts", targets: [10, 25, 50, 100], rewards: [5, 10, 15, 20] },
+    ];
+
+    const now = Date.now();
+    let saved;
+    try { saved = JSON.parse(localStorage.getItem("gd_quests")); } catch(e) { saved = null; }
+    const timestamp = parseInt(localStorage.getItem("gd_questsTimestamp") || "0", 10);
+
+    if (saved && saved.length === 3 && timestamp > 0 && (now - timestamp) < QUEST_DURATION) {
+      return { quests: saved, expiresAt: timestamp + QUEST_DURATION };
+    }
+
+    const currentStats = {
+      stars: window._totalStars || 0,
+      completedLevels: window._completedLevels || 0,
+      jumps: parseInt(localStorage.getItem("gd_totalJumps") || "0", 10),
+      deaths: parseInt(localStorage.getItem("gd_totalDeaths") || "0", 10),
+      attempts: parseInt(localStorage.getItem("gd_totalAttempts") || "0", 10),
+    };
+
+    const shuffled = [...QUEST_POOL].sort(() => Math.random() - 0.5);
+    const picked = shuffled.slice(0, 3);
+    const quests = picked.map(q => {
+      const tierIdx = Math.floor(Math.random() * q.targets.length);
+      const target = q.targets[tierIdx];
+      return {
+        name: q.name,
+        desc: q.desc.replace("{n}", target),
+        stat: q.stat,
+        target: target,
+        reward: q.rewards[tierIdx],
+        startValue: currentStats[q.stat]
+      };
+    });
+
+    localStorage.setItem("gd_quests", JSON.stringify(quests));
+    localStorage.setItem("gd_questsTimestamp", String(now));
+    return { quests, expiresAt: now + QUEST_DURATION };
+  }
+  _buildQuestPopup() {
+    if (this._questPopup) return;
+
+    const centerX = screenWidth / 2;
+    const centerY = 320;
+    const panelWidth = 700;
+    const panelHeight = 500;
+
+    this._questPopup = this.add.container(0, 0).setScrollFactor(0).setDepth(250);
+
+    const dim = this.add.rectangle(centerX, centerY, screenWidth, screenHeight, 0, 150 / 255).setInteractive();
+    this._questPopup.add(dim);
+
+    const innerContainer = this.add.container(centerX, centerY).setScale(0);
+    this._questPopup.add(innerContainer);
+
+    const corner = 0.325 * this.textures.get("GJ_square01").source[0].width;
+    const panel = this._drawScale9(0, 0, panelWidth, panelHeight, 'GJ_square01', corner, 16777215, 1);
+    innerContainer.add(panel);
+
+    const closeBtn = this.add.image(-(panelWidth / 2) + 10, -(panelHeight / 2) + 10, 'GJ_WebSheet', "GJ_closeBtn_001.png").setScale(0.8).setInteractive();
+    innerContainer.add(closeBtn);
+    this._makeBouncyButton(closeBtn, 0.8, () => {
+      this._questPopup.destroy();
+      this._questPopup = null;
+    });
+
+    const title = this.add.bitmapText(0, -(panelHeight / 2) + 40, "bigFont", "Quests", 40).setOrigin(0.5);
+    innerContainer.add(title);
+
+    const { quests, expiresAt } = this._getActiveQuests();
+
+    const currentStats = {
+      stars: window._totalStars || 0,
+      completedLevels: window._completedLevels || 0,
+      jumps: parseInt(localStorage.getItem("gd_totalJumps") || "0", 10),
+      deaths: parseInt(localStorage.getItem("gd_totalDeaths") || "0", 10),
+      attempts: parseInt(localStorage.getItem("gd_totalAttempts") || "0", 10),
+    };
+
+    const rowH = 120;
+    const rowW = panelWidth - 80;
+    const startY = -100;
+
+    quests.forEach((quest, idx) => {
+      const ry = startY + idx * (rowH + 15);
+
+      const rowBg = this.add.graphics();
+      rowBg.fillStyle(0x3333AA, 0.9);
+      rowBg.fillRoundedRect(-rowW / 2, ry - rowH / 2, rowW, rowH, 12);
+      rowBg.lineStyle(2, 0x5555CC, 1);
+      rowBg.strokeRoundedRect(-rowW / 2, ry - rowH / 2, rowW, rowH, 12);
+      innerContainer.add(rowBg);
+
+      const nameText = this.add.bitmapText(-rowW / 2 + 20, ry - 35, "bigFont", quest.name, 24).setOrigin(0, 0.5);
+      innerContainer.add(nameText);
+
+      const descText = this.add.bitmapText(-rowW / 2 + 20, ry - 10, "goldFont", quest.desc, 18).setOrigin(0, 0.5);
+      innerContainer.add(descText);
+
+      const progress = Math.max(0, currentStats[quest.stat] - quest.startValue);
+      const clamped = Math.min(progress, quest.target);
+      const pct = clamped / quest.target;
+
+      const barW = 340;
+      const barH = 20;
+      const barX = -rowW / 2 + 20;
+      const barY = ry + 15;
+
+      const barBg = this.add.graphics();
+      barBg.fillStyle(0x111133, 1);
+      barBg.fillRoundedRect(barX, barY, barW, barH, barH / 2);
+      innerContainer.add(barBg);
+
+      if (pct > 0) {
+        const barFg = this.add.graphics();
+        const fillColor = clamped >= quest.target ? 0x00FF00 : 0x00AAFF;
+        barFg.fillStyle(fillColor, 1);
+        const fillW = Math.max(barH, barW * pct);
+        const rightR = pct >= 1 ? barH / 2 : 0;
+        barFg.fillRoundedRect(barX, barY, fillW, barH, { tl: barH / 2, bl: barH / 2, tr: rightR, br: rightR });
+        innerContainer.add(barFg);
+      }
+
+      const progressText = this.add.bitmapText(barX + barW / 2, barY + barH / 2, "goldFont", clamped + " / " + quest.target, 16)
+        .setOrigin(0.5);
+      innerContainer.add(progressText);
+
+      const rewardText = this.add.bitmapText(rowW / 2 - 40, ry - 10, "bigFont", quest.reward + "x", 30)
+        .setOrigin(1, 0.5);
+      innerContainer.add(rewardText);
+
+      const diamondIcon = this.add.image(rowW / 2 - 20, ry - 10, "GJ_GameSheet03", "GJ_diamondsIcon_001.png")
+        .setScale(0.8);
+      innerContainer.add(diamondIcon);
+
+      if (clamped >= quest.target) {
+        nameText.setTint(0x00FF00);
+      }
+    });
+
+    const remaining = Math.max(0, expiresAt - Date.now());
+    const hours = Math.floor(remaining / 3600000);
+    const mins = Math.floor((remaining % 3600000) / 60000);
+    const timerText = this.add.bitmapText(0, panelHeight / 2 - 35, "goldFont", "New quests in: " + hours + "h " + mins + "min", 22)
+      .setOrigin(0.5);
+    innerContainer.add(timerText);
+
+    this.tweens.add({
+      targets: innerContainer,
+      scale: 1,
+      duration: 660,
+      ease: "Elastic.Out",
+      easeParams: [1, 0.6]
+    });
   }
   _buildMacroPopup() {
       if (this._macroPopup) return;
@@ -4160,12 +4714,12 @@ _buildSettingsPopup() {
     
     const creditsEntries = [
       { text: "Made by RobTop Games", scale: 0.8, font: "goldFont" },
-      { text: "FULL CREDIT TO THE BREADMOD TEAM", scale: 0.9, font: "bigFont" },
-      { text: "(They did like all of the code 🤤", scale: 0.7, font: "goldFont" },
-      { text: "SLVR Team Devs:", scale: 0.7, font: "goldFont" },
-      { text: "Silver, Braen, Jaibogar", scale: 0.9, font: "bigFont" },
-      { text: "& Bosstfex", scale: 0.7, font: "goldFont" },
-      { text: "Copyright 2026 RobTopGames, All Rights Reserved", scale: 0.4, font: "Arial", color: 0x000000 },
+      { text: "Modded by:", scale: 0.9, font: "bigFont" },
+      { text: "breadbb, PinkDev, rohanis0000,", scale: 0.7, font: "goldFont" },
+      { text: "bog, AntiMatter, arbstro, aloaf", scale: 0.7, font: "goldFont" },
+      { text: "Contributors:", scale: 0.9, font: "bigFont" },
+      { text: "t0nchi7 and Lasokar.", scale: 0.7, font: "goldFont" },
+      { text: "© 2026 RobTop Games. All rights reserved.", scale: 0.4, font: "Arial", color: 0x000000 },
     ]; 
     let yPos = 0;
     const lineItems = [];
@@ -4441,7 +4995,7 @@ _buildSettingsPopup() {
     bounceContainer.add(closeBtn);
     this._expandHitArea(closeBtn, 2);
     this._makeBouncyButton(closeBtn, 0.8, () => this._closeUpdateLogPopup());
-    const title = this.add.bitmapText(0, -124, "bigFont", "Welcome!", 30).setOrigin(0.5, 0.5).setTint(0xff6666);
+    const title = this.add.bitmapText(0, -124, "bigFont", "BETA (EXPECT BUGS)", 30).setOrigin(0.5, 0.5).setTint(0xff6666);
     bounceContainer.add(title);
     const scrollAreaW = 420;
     const scrollAreaH = 230;
@@ -4460,11 +5014,11 @@ _buildSettingsPopup() {
       0xff00ff - pink dev entries
     */
     const updateEntries = [
-      { text: "To Silver's GDPS!", scale: 0.85, font: "goldFont" },
-      { text: "Full credit to RobTopGames", scale: 0.65 },
-      { text: "and the Breadmod Team!", scale: 0.6 },
-      { text: "Special thanks to SLVR clan!", scale: 0.65, color: 0xaaddff },
-      { text: "- Silver", scale: 0.65, color: 0xaaddff },
+      { text: "Update Log", scale: 0.85, font: "goldFont" },
+      { text: "Accurate GDWeb+ logo", scale: 0.65 },
+      { text: "Credit to Altruist for making it", scale: 0.6 },
+      { text: "is this update finally out?", scale: 0.65, color: 0xaaddff },
+      { text: "- rohanis0000", scale: 0.65, color: 0xaaddff },
     ]; 
     let yPos = 0;
     const lineItems = [];
@@ -5073,6 +5627,8 @@ _buildSettingsPopup() {
     this._attemptsLabel.setText("Attempt " + this._levelAttempts);
     this._attemptsLabel.setVisible(true);
     this._positionAttemptsLabel();
+    this._coinsCollected = 0;
+    this._coinTotal = this._level._coinSprites.length;
     let gamemode = parseInt(window.settingsMap["kA2"] || "0");
     if (gamemode == 1) {
       this._player.enterShipMode();
@@ -5340,6 +5896,8 @@ _buildSettingsPopup() {
     this._level.resetEnterEffectTriggers();
     this._level.resetMoveTriggers();
     this._level.resetVisibility();
+    this._level._updateGlowVisibility();
+    this._coinsCollected = 0;
     if (this._orbGfx) { this._orbGfx.clear(); }
     this._colorManager.reset();
     this._player.noclipStats.totalFrames = 0;
@@ -5951,7 +6509,8 @@ _buildSettingsPopup() {
       }
       this._player.updateExplosionPieces(deltaTime);
       this._deathTimer += deltaTime;
-      let _0x237728 = this._hadNewBest ? 1400 : 1000;
+      const baseDelay = (window.respawnTime ?? 1.0) * 1000;
+      let _0x237728 = this._hadNewBest ? baseDelay + 400 : baseDelay;
       if (this._deathTimer > _0x237728) {
         if (this._practicedMode.practiceMode) {
           this._respawnFromCheckpoint();
@@ -7531,7 +8090,12 @@ _applyMirrorEffect() {
     _triggerEndPortal() {
     this._player.playEndAnimation(this._level.endXPos, () => this._levelComplete(), this._endPortalGameY);
   }
+  _onCoinCollected() {
+    this._coinsCollected++;
+    this._audio.playEffect("highscoreGet02");
+  }
   _levelComplete() {
+    this._starsAwarded = 0;
     if (!this._practicedMode.practiceMode) {
       this._bestPercent = 100;
       localStorage.setItem("bestPercent_" + (window.currentlevel[2] || "level_1"), 100);
@@ -7544,6 +8108,24 @@ _applyMirrorEffect() {
         localStorage.setItem(completedKey, JSON.stringify(completedSet));
         window._completedLevels = completedSet.length;
         localStorage.setItem("gd_completedLevels", window._completedLevels);
+        const levelStars = window.currentlevel[4] || 0;
+        if (levelStars > 0) {
+          this._starsAwarded = levelStars;
+          window._totalStars = (window._totalStars || 0) + levelStars;
+          localStorage.setItem("gd_totalStars", window._totalStars);
+        }
+      }
+      if (this._coinsCollected > 0 && this._coinTotal > 0) {
+        const coinKey = "coins_" + levelId;
+        let savedCoins;
+        try { savedCoins = JSON.parse(localStorage.getItem(coinKey) || "[]"); } catch(e) { savedCoins = []; }
+        const coinSprites = this._level._coinSprites;
+        for (let i = 0; i < coinSprites.length; i++) {
+          if (coinSprites[i] && !coinSprites[i].visible && !savedCoins.includes(i)) {
+            savedCoins.push(i);
+          }
+        }
+        localStorage.setItem(coinKey, JSON.stringify(savedCoins));
       }
     } else {
       this._practiceBestPercent = 100;
@@ -8129,13 +8711,13 @@ _applyMirrorEffect() {
     const _rowH = (_rowPanelBottom - _rowPanelTop) / _rowCount;
 
     const rows = [
+      { label: "Total Stars:",          value: String(window._totalStars || 0) },
       { label: "Total Jumps:",         value: String(this._totalJumps || 0) },
       { label: "Total Attempts:",       value: String(this._attempts || 1) },
       { label: "Completed Levels:",     value: String(window._completedLevels || 0) },
       { label: "Total Deaths:",      value: String(this._totalDeaths || 0) },
-      { label: "???:",   value: String(window._totalDiamonds || '?') },
       { label: "???:", value: String(window._totalOrbs || '?') },
-      
+
     ];
     rows.forEach((row, index) => {
       const rowCenterY = _rowPanelTop + index * _rowH + _rowH / 2;
@@ -8213,6 +8795,7 @@ _applyMirrorEffect() {
     }
     const _0x4edc03 = this._endStarX;
     const _0x5a0e9 = this._endStarY;
+    const starCount = this._starsAwarded || 0;
     const _0x453043 = this.add.image(_0x4edc03, _0x5a0e9, "GJ_WebSheet", "GJ_bigStar_001.png").setScale(3).setAlpha(0);
     this._endLayerInternal.add(_0x453043);
     this.tweens.add({
@@ -8223,6 +8806,18 @@ _applyMirrorEffect() {
       delay: 0,
       ease: "Bounce.Out"
     });
+    if (starCount > 0) {
+      const starLabel = this.add.bitmapText(_0x4edc03, _0x5a0e9 + 35, "bigFont", "+" + starCount, 28).setOrigin(0.5, 0.5).setScale(3).setAlpha(0);
+      this._endLayerInternal.add(starLabel);
+      this.tweens.add({
+        targets: starLabel,
+        scale: 1,
+        alpha: 1,
+        duration: 300,
+        delay: 100,
+        ease: "Bounce.Out"
+      });
+    }
     this.time.delayedCall(100, () => {
       this._audio.playEffect("highscoreGet02");
       const _0x1204d3 = _0x4edc03;
