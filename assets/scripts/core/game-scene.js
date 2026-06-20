@@ -406,15 +406,15 @@ class GameScene extends Phaser.Scene {
       {frame:  "",                       url: "",                                                     angle: 0,                row: 0, col: 2 },
       {frame:  "",                       url: "",                                                     angle: 0,                row: 0, col: 3 },
 
-      { frame: "gj_twIcon_001.png",      url: "https://x.com/rohanis0000gd",                          angle: -90, flipX: true, row: 1, col: 0 },
-      { frame: "gj_ytIcon_001.png",      url: "https://www.youtube.com/@rohanis0000gd",               angle: 0,                row: 1, col: 1 },
-      { frame: "gj_tiktokIcon_001.png",  url: "https://www.tiktok.com/@rohanis00000",                 angle: -90, flipX: true, row: 1, col: 2 },
-      { frame: "gj_githubIcon_001.png",  url: "https://github.com/web-dashers/web-dashers.github.io", angle: 0,                row: 1, col: 3 },
+      { frame: "gj_twIcon_001.png",      url: "https://x.com/",                          angle: -90, flipX: true, row: 1, col: 0 },
+      { frame: "gj_ytIcon_001.png",      url: "https://www.youtube.com/@GDSilverwastaken",               angle: 0,                row: 1, col: 1 },
+      { frame: "gj_tiktokIcon_001.png",  url: "https://www.tiktok.com/@gdsilv3r",                 angle: -90, flipX: true, row: 1, col: 2 },
+      { frame: "gj_githubIcon_001.png",  url: "https://github.com/GDsilver1/SilverGDPS/", angle: 0,                row: 1, col: 3 },
 
       {frame:  "",                       url: "",                                                     angle: 0,                row: 2, col: 0 },
       {frame:  "",                       url: "",                                                     angle: 0,                row: 2, col: 1 },
       {frame:  "",                       url: "",                                                     angle: 0,                row: 2, col: 2 },
-      { frame: "gj_discordIcon_001.png", url: "https://discord.gg/TfEzAVWPSJ",                        angle: 90,               row: 2, col: 3 },
+      { frame: "gj_discordIcon_001.png", url: "https://discord.gg/jt9bB59BPu",                        angle: 90,               row: 2, col: 3 },
 
 
       //{ frame: "gj_instaIcon_001.png",   url: "https://www.instagram.com/",                           angle: -90, flipX: true, row: 1, col: 3 },
