@@ -2,7 +2,7 @@
   width="400" 
   height="400" 
   alt="slvrgdps logo" 
-  src="https://github.com/GDsilver1/SilverGDPS/blob/main/assets/logo.png]https://raw.githubusercontent.com/GDsilver1/SilverGDPS/refs/heads/main/assets/logo.png" 
+  src="[https://github.com/GDsilver1/SilverGDPS/blob/main/assets/logo.png]https://raw.githubusercontent.com/GDsilver1/SilverGDPS/refs/heads/main/assets/logo.png](https://media.discordapp.net/attachments/1495945499662880880/1517782962840666142/logo.png?ex=6a378909&is=6a363789&hm=5be8a62f893bea2ae458e16e69ffcd138a9925c476c2303687a2affe0b4e37b1&=&format=webp&quality=lossless&width=873&height=873)" 
   />
 
 A Breadmod custom GDPS that will hopefully add new ideas in the future!
