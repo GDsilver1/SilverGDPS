@@ -4995,7 +4995,7 @@ _buildSettingsPopup() {
     bounceContainer.add(closeBtn);
     this._expandHitArea(closeBtn, 2);
     this._makeBouncyButton(closeBtn, 0.8, () => this._closeUpdateLogPopup());
-    const title = this.add.bitmapText(0, -124, "bigFont", "BETA (EXPECT BUGS)", 30).setOrigin(0.5, 0.5).setTint(0xff6666);
+    const title = this.add.bitmapText(0, -124, "bigFont", "Welcome to SLVRgdps!", 30).setOrigin(0.5, 0.5).setTint(0xff6666);
     bounceContainer.add(title);
     const scrollAreaW = 420;
     const scrollAreaH = 230;
@@ -5014,11 +5014,11 @@ _buildSettingsPopup() {
       0xff00ff - pink dev entries
     */
     const updateEntries = [
-      { text: "Update Log", scale: 0.85, font: "goldFont" },
-      { text: "Accurate GDWeb+ logo", scale: 0.65 },
-      { text: "Credit to Altruist for making it", scale: 0.6 },
-      { text: "is this update finally out?", scale: 0.65, color: 0xaaddff },
-      { text: "- rohanis0000", scale: 0.65, color: 0xaaddff },
+      { text: "FULL credit to the Breadmod team,", scale: 0.6, font: "goldFont" },
+      { text: "SLVRclan team,", scale: 0.65 },
+      { text: "And TheBlehLollipop", scale: 0.6 },
+      { text: "For all of this", scale: 0.65, color: 0xaaddff },
+      { text: "-Silver", scale: 0.65, color: 0xaaddff },
     ]; 
     let yPos = 0;
     const lineItems = [];
