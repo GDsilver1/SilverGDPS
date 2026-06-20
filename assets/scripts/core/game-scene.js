@@ -4160,12 +4160,12 @@ _buildSettingsPopup() {
     
     const creditsEntries = [
       { text: "Made by RobTop Games", scale: 0.8, font: "goldFont" },
-      { text: "Modded by:", scale: 0.9, font: "bigFont" },
-      { text: "breadbb, PinkDev, rohanis0000,", scale: 0.7, font: "goldFont" },
-      { text: "bog, AntiMatter, arbstro, aloaf", scale: 0.7, font: "goldFont" },
-      { text: "Contributors:", scale: 0.9, font: "bigFont" },
-      { text: "t0nchi7 and Lasokar.", scale: 0.7, font: "goldFont" },
-      { text: "© 2026 RobTop Games. All rights reserved.", scale: 0.4, font: "Arial", color: 0x000000 },
+      { text: "FULL CREDIT TO THE BREADMOD TEAM", scale: 0.9, font: "bigFont" },
+      { text: "(They did like all of the code 🤤", scale: 0.7, font: "goldFont" },
+      { text: "SLVR Team Devs:", scale: 0.7, font: "goldFont" },
+      { text: "Silver, Braen, Jaibogar", scale: 0.9, font: "bigFont" },
+      { text: "& Bosstfex", scale: 0.7, font: "goldFont" },
+      { text: "Copyright 2026 RobTopGames, All Rights Reserved", scale: 0.4, font: "Arial", color: 0x000000 },
     ]; 
     let yPos = 0;
     const lineItems = [];
@@ -4441,7 +4441,7 @@ _buildSettingsPopup() {
     bounceContainer.add(closeBtn);
     this._expandHitArea(closeBtn, 2);
     this._makeBouncyButton(closeBtn, 0.8, () => this._closeUpdateLogPopup());
-    const title = this.add.bitmapText(0, -124, "bigFont", "BETA (EXPECT BUGS)", 30).setOrigin(0.5, 0.5).setTint(0xff6666);
+    const title = this.add.bitmapText(0, -124, "bigFont", "Welcome!", 30).setOrigin(0.5, 0.5).setTint(0xff6666);
     bounceContainer.add(title);
     const scrollAreaW = 420;
     const scrollAreaH = 230;
@@ -4460,11 +4460,11 @@ _buildSettingsPopup() {
       0xff00ff - pink dev entries
     */
     const updateEntries = [
-      { text: "Update Log", scale: 0.85, font: "goldFont" },
-      { text: "Accurate GDWeb+ logo", scale: 0.65 },
-      { text: "Credit to Altruist for making it", scale: 0.6 },
-      { text: "is this update finally out?", scale: 0.65, color: 0xaaddff },
-      { text: "- rohanis0000", scale: 0.65, color: 0xaaddff },
+      { text: "To Silver's GDPS!", scale: 0.85, font: "goldFont" },
+      { text: "Full credit to RobTopGames", scale: 0.65 },
+      { text: "and the Breadmod Team!", scale: 0.6 },
+      { text: "Special thanks to SLVR clan!", scale: 0.65, color: 0xaaddff },
+      { text: "- Silver", scale: 0.65, color: 0xaaddff },
     ]; 
     let yPos = 0;
     const lineItems = [];
