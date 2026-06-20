@@ -4714,11 +4714,11 @@ _buildSettingsPopup() {
     
     const creditsEntries = [
       { text: "Made by RobTop Games", scale: 0.8, font: "goldFont" },
-      { text: "Modded by:", scale: 0.9, font: "bigFont" },
-      { text: "breadbb, PinkDev, rohanis0000,", scale: 0.7, font: "goldFont" },
-      { text: "bog, AntiMatter, arbstro, aloaf", scale: 0.7, font: "goldFont" },
-      { text: "Contributors:", scale: 0.9, font: "bigFont" },
-      { text: "t0nchi7 and Lasokar.", scale: 0.7, font: "goldFont" },
+      { text: "And full credit to the Breadmod Team", scale: 0.9, font: "bigFont" },
+      { text: "And SLVRclan members:", scale: 0.7, font: "goldFont" },
+      { text: "Silver, Braen, Bosstfex", scale: 0.7, font: "goldFont" },
+      { text: "Jaibogar, Octobro, & Rory", scale: 0.9, font: "bigFont" },
+      { text: " ", scale: 0.7, font: "goldFont" },
       { text: "© 2026 RobTop Games. All rights reserved.", scale: 0.4, font: "Arial", color: 0x000000 },
     ]; 
     let yPos = 0;
