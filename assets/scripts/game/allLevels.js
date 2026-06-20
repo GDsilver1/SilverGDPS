@@ -124,4 +124,5 @@ window.allLevels = [
 	    "Fingerdash",
 	    "level_21",
 	    ["RobTop", "MDK"]
-    ]
+    ],
+]
